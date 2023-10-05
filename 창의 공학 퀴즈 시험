@@ -1,0 +1,169 @@
+점수:
+1번:20점,2번:20점,3번:20점,4번:10점,5번:20점
+
+
+1.창의성과 문제 해결 능력,협업과 팀워크,소통 기술,정보 및 기술 리터러시,윤리적 판단과 사회적 책임 이러한 다섯 가지 학습 내용을 통해 학생들은 창의성을 향상시키고, 협업과 소통 능력을 강화하며, 차세대 문제 해결자로서의 역량을 개발할 수 있을 것입니다.
+===============================================================
+2.
+2-1. 스마트폰과 무선 통신 모듈을 연결하고, 마이크로컨트롤러와 릴레이 모듈을 연결하는 회로를 설계합니다.
+   이 회로는 전원 및 제어 신호를 릴레이에 전달하도록 해야합니다.
+
+2-2. 스마트폰에서 전등을 제어할 수 있도록 하고, 스마트 폰을 앱 또는 웹 앱을 개발하여 무선 통신 모듈을
+   통해 제어 명령을 전송할 수 있어야 합니다.
+
+2-3. 무선 통신 모듈을 스마트폰과 페어링하고 네트워크에 연결합니다. Wi-Fi를 사용한다면 무선 라우터에
+   연결하고 Bluetooth를 사용한다면 스마트폰과 무선 통신 모듈을 페어링합니다.
+
+2-4. 전원과 소켓을 릴레이 모듈에 연결하고, 릴레이를 통해 전원을 전달합니다. 전기 연결은 안전을 위해
+   주의 깊게 처리해야 됩니다.
+
+2-5. 시스템을 테스트하여 원격으로 전등을 켜고 끌 수 있는지 확인하고, 안정성을 점검한 뒤에 시스템을
+   정상적으로 사용할 수 있게 됩니다.
+===========================================================
+3.
+아두이노 코드
+const int switchPin = 11; // 스위치 핀
+
+void setup() {
+  pinMode(switchPin, INPUT_PULLUP);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int switchState = digitalRead(switchPin); // 스위치 핀의 디지털 상태 읽기
+
+  if (switchState == LOW) {
+    // 스위치가 눌렸을 때 '1'을 시리얼 포트로 전송
+    Serial.println("1");
+  } else {
+    // 스위치가 떨어졌을 때 '2'를 시리얼 포트로 전송
+    Serial.println("2");
+  }
+
+  delay(100);
+}
+프로세싱 코드
+import processing.serial.*;
+Serial p;
+void setup(){
+  size(400,400);
+  p = new Serial(this,"COM3", 9600);
+}
+void draw(){
+  if(p.available()>0){
+    String m = p.readStringUntil('\n');
+    if(m != null){
+       print(m);
+       if(m.indexOf('1')==0) background(0,0,255);
+       if(m.indexOf('2')==0) background(255,0,0);
+    }
+  }
+}
+===============================================
+4.
+char inputChar = ' '; // 입력한 한 글자를 저장할 변수
+import processing.serial.*;
+import processing.net.*;
+Serial p;
+Server s;
+Client c;
+void setup(){
+  p = new Serial(this, "COM3", 9600);
+  s = new Server(this, 12345);
+  size(100, 100);
+}
+
+void draw() {
+  background(0);
+  fill(255);
+  textSize(32);
+  textAlign(CENTER, CENTER); // 텍스트를 중앙에 정렬
+  text(inputChar, width / 2, height / 2); // 입력한 한 글자를 화면 가운데에 출력
+}
+
+void keyPressed() {
+  if (key == '1' || key == '2') {
+    inputChar = key; // 입력한 한 글자를 변수에 저장
+  }
+}
+===========================================================
+5.
+아두이노 코드
+void setup() {
+  pinMode(13, OUTPUT);
+  pinMode(4, OUTPUT);
+  Serial.begin(9600);
+}
+void loop() {
+  if (Serial.available() > 0) {
+    int receivedData = Serial.read();
+
+    if (receivedData == '0') {
+      digitalWrite(13, HIGH);
+    } else if (receivedData == '1') {
+      digitalWrite(13, LOW);
+    } else if (receivedData == '3') {
+      tone(4, 261, 100);  // 도
+      delay(200);
+      tone(4, 293, 100);  // 레
+      delay(200);
+      tone(4, 329, 100);  // 미
+      delay(200);
+      tone(4, 349, 100);  // 파
+      delay(200);
+      tone(4, 392, 100);  // 솔
+      delay(200);
+      tone(4, 440, 100);  // 라
+      delay(200);
+      tone(4, 493, 100);  // 시
+      delay(200);
+      tone(4, 523, 100);  // 도
+      delay(200);
+    }
+  }
+}
+프로세싱 코드
+import processing.serial.*;
+import processing.net.*;
+
+Serial arduinoPort; // 아두이노와의 시리얼 통신을 위한 객체
+
+Server server;
+Client client;
+
+void setup() {
+  // 아두이노와의 시리얼 통신을 설정합니다.
+  server = new Server(this, 12345); // 12345 포트로 서버 생성
+  arduinoPort = new Serial(this, "COM3", 9600); // COM3는 아두이노가 연결된 포트에 대한 예시입니다. 실제 포트 번호에 맞게 수정하세요.
+  arduinoPort.bufferUntil('\n'); // 개행 문자를 기준으로 데이터를 읽습니다.
+}
+
+void draw() {
+  // 프로세싱에서 사용자 입력을 처리하거나 다른 작업을 수행할 수 있습니다.
+  client = server.available(); // 클라이언트 연결 대기
+
+  if (client != null) {
+    String message = client.readString(); // 클라이언트로부터 메시지 읽기
+    println("Received: " + message); // 메시지 콘솔에 출력
+    println("Received: " + message);
+    client.stop(); // 클라이언트 연결 종료
+  }
+}
+
+void keyPressed() {
+  if (key == '0') {
+    arduinoPort.write("0\n"); // 아두이노로 0을 보냅니다.
+  } else if (key == '1') {
+    arduinoPort.write("1\n"); // 아두이노로 1을 보냅니다.
+  } else if (key == '3') {
+    arduinoPort.write("3\n"); // 아두이노로 3을 보냅니다.
+  }
+}
+
+void serialEvent(Serial port) {
+  String data = port.readStringUntil('\n'); // 아두이노에서 받은 데이터를 읽습니다.
+  if (data != null) {
+    println("아두이노로부터 받은 데이터: " + data);
+  }
+}
+=========================================================
