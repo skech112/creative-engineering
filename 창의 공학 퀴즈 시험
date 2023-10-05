@@ -1,5 +1,5 @@
-점수:90점
-1번:20점,2번:20점,3번:20점,4번:10점,5번:20점
+점수:100점
+1번:20점,2번:20점,3번:20점,4번:20점,5번:20점
 
 
 1.창의 공학을 통해서 학생들이 학습 해야할 내용에 대하 5가지를 적으시오(창의성 함양,협업,소통기술 포함)
@@ -24,148 +24,162 @@
 ===========================================================
 3.아두이노의 스위치를 읽고 서버로 1토에 1회씩 전송하는 코드와 서버에서 수신하여 1이면 초록색 2면 검은색으로 바꾸는 코드
 아두이노 코드
-const int switchPin = 11; // 스위치 핀
-
 void setup() {
-  pinMode(switchPin, INPUT_PULLUP);
+  pinMode(11, INPUT_PULLUP);
   Serial.begin(9600);
 }
-
 void loop() {
-  int switchState = digitalRead(switchPin); // 스위치 핀의 디지털 상태 읽기
-
-  if (switchState == LOW) {
-    // 스위치가 눌렸을 때 '1'을 시리얼 포트로 전송
-    Serial.println("1");
-  } else {
-    // 스위치가 떨어졌을 때 '2'를 시리얼 포트로 전송
-    Serial.println("2");
-  }
-
-  delay(100);
+  int sw=digitalRead(11);
+  Serial.println(sw+1);
+  delay(1000);
 }
 프로세싱 코드
 import processing.serial.*;
 Serial p;
 void setup(){
-  size(400,400);
-  p = new Serial(this,"COM3", 9600);
+  p = new Serial(this, "COM4", 9600);
 }
+String m="";
 void draw(){
   if(p.available()>0){
-    String m = p.readStringUntil('\n');
-    if(m != null){
-       print(m);
-       if(m.indexOf('1')==0) background(0,0,255);
-       if(m.indexOf('2')==0) background(255,0,0);
+    m = p.readStringUntil('\n');
+    if(m!=null){
+      print(m);
+      if(m.indexOf('1')==0) background(0,255,0);
+      if(m.indexOf('2')==0) background(0,0,0);
     }
   }
 }
 ===============================================
 4.서버에서 스마트폰으로 1을 보내면 스마트폰의 화면이 푸른색으로,0을 보내면 붉은색으로 보내는 코드를 적으시오
-char inputChar = ' '; // 입력한 한 글자를 저장할 변수
+아두이노 코드
+void setup() {
+  pinMode(11, INPUT_PULLUP);
+  Serial.begin(9600);
+}
+void loop() {
+  int sw=digitalRead(11);
+  Serial.println(sw);
+  delay(1000);
+}
+프로세싱 코드
 import processing.serial.*;
 import processing.net.*;
 Serial p;
 Server s;
 Client c;
 void setup(){
-  p = new Serial(this, "COM3", 9600);
-  s = new Server(this, 12345);
-  size(100, 100);
+  p = new Serial(this, "COM11", 9600);
+  s = new Server(this, 123);
 }
-
-void draw() {
-  background(0);
-  fill(255);
-  textSize(32);
-  textAlign(CENTER, CENTER); // 텍스트를 중앙에 정렬
-  text(inputChar, width / 2, height / 2); // 입력한 한 글자를 화면 가운데에 출력
-}
-
-void keyPressed() {
-  if (key == '1' || key == '2') {
-    inputChar = key; // 입력한 한 글자를 변수에 저장
+String m="";
+void draw(){
+  if(p.available()>0){
+    m = p.readStringUntil('\n');
+    if(m!=null){
+      print(m);
+    }
+  }
+  c = s.available();
+  if(c!=null){
+    String w = c.readString();
+    println(w);
+    if (w.indexOf("GET")==0) {
+      c.write("HTTP/1.1 200 OK\r\n\r\n\r\n");
+      c.write(m);
+    }
+    c.stop();
   }
 }
 ===========================================================
 5.
 아두이노 코드
 void setup() {
-  pinMode(13, OUTPUT);
-  pinMode(4, OUTPUT);
   Serial.begin(9600);
+  pinMode(7, OUTPUT);
 }
 void loop() {
-  if (Serial.available() > 0) {
-    int receivedData = Serial.read();
+  
+  String values[] = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
-    if (receivedData == '0') {
-      digitalWrite(13, HIGH);
-    } else if (receivedData == '1') {
-      digitalWrite(13, LOW);
-    } else if (receivedData == '3') {
-      tone(4, 261, 100);  // 도
-      delay(200);
-      tone(4, 293, 100);  // 레
-      delay(200);
-      tone(4, 329, 100);  // 미
-      delay(200);
-      tone(4, 349, 100);  // 파
-      delay(200);
-      tone(4, 392, 100);  // 솔
-      delay(200);
-      tone(4, 440, 100);  // 라
-      delay(200);
-      tone(4, 493, 100);  // 시
-      delay(200);
-      tone(4, 523, 100);  // 도
-      delay(200);
+  if (Serial.available() > 0) {
+    
+    String m = Serial.readStringUntil('\n');
+        if (m == "on") {
+      digitalWrite(7, HIGH);
+    } else if (m == "off") {
+      digitalWrite(7, LOW);
+    } else {
+      int frequency = 0;
+      // 문자열을 정수로 변환하여 주파수 설정
+      int value = m.toInt();
+      switch (value) {
+        case 1:
+          frequency = 261; // 도
+          break;
+        case 2:
+          frequency = 293; // 레
+          break;
+        case 3:
+          frequency = 329; // 미
+          break;
+        case 4:
+          frequency = 349; // 파
+          break;
+        case 5:
+          frequency = 392; // 솔
+          break;
+        case 6:
+          frequency = 440; // 라
+          break;
+        case 7:
+          frequency = 493; // 시
+          break;
+        case 8:
+          frequency = 523; // 높은 도
+          break;
+        default:
+          // 유효하지 않은 입력 처리
+          break;
+      }
+
+      if (frequency > 0) {
+        tone(4, frequency, 500); // 주파수 설정
+      }
     }
   }
 }
 프로세싱 코드
-import processing.serial.*;
 import processing.net.*;
-
-Serial arduinoPort; // 아두이노와의 시리얼 통신을 위한 객체
-
-Server server;
-Client client;
-
+import processing.serial.*;
+Server s;
+Client c;
+Serial p;
 void setup() {
-  // 아두이노와의 시리얼 통신을 설정합니다.
-  server = new Server(this, 12345); // 12345 포트로 서버 생성
-  arduinoPort = new Serial(this, "COM3", 9600); // COM3는 아두이노가 연결된 포트에 대한 예시입니다. 실제 포트 번호에 맞게 수정하세요.
-  arduinoPort.bufferUntil('\n'); // 개행 문자를 기준으로 데이터를 읽습니다.
+  s = new Server(this, 123);
+  p = new Serial(this, "COM11", 9600);
 }
-
+String msg="hi";
 void draw() {
-  // 프로세싱에서 사용자 입력을 처리하거나 다른 작업을 수행할 수 있습니다.
-  client = server.available(); // 클라이언트 연결 대기
-
-  if (client != null) {
-    String message = client.readString(); // 클라이언트로부터 메시지 읽기
-    println("Received: " + message); // 메시지 콘솔에 출력
-    println("Received: " + message);
-    client.stop(); // 클라이언트 연결 종료
+  c = s.available();
+  if (c!=null) {
+    
+    String m = c.readString();
+    if (m.indexOf("GET /")==0) {
+      c.write("HTTP/1.1 200 OK\r\n\r\n");
+      c.write(msg);
+    }
+    if (m.indexOf("PUT /")==0) {
+      int n = m.indexOf("\r\n\r\n")+4; // on-off 위치
+      m = m.substring(n); // on-off 잘라 내는 위치   //
+      m += '\n';           // 표시할 문자
+      p.write(m); // 시리얼 포트로 on-off 보내기 
+      print(m);
+    }
+  }
+  if (p.available()>0) { // 시리얼 데이터 읽기
+    String m = p.readStringUntil('\n');
+    if (m!=null)  msg = m;
+    print(msg);
   }
 }
-
-void keyPressed() {
-  if (key == '0') {
-    arduinoPort.write("0\n"); // 아두이노로 0을 보냅니다.
-  } else if (key == '1') {
-    arduinoPort.write("1\n"); // 아두이노로 1을 보냅니다.
-  } else if (key == '3') {
-    arduinoPort.write("3\n"); // 아두이노로 3을 보냅니다.
-  }
-}
-
-void serialEvent(Serial port) {
-  String data = port.readStringUntil('\n'); // 아두이노에서 받은 데이터를 읽습니다.
-  if (data != null) {
-    println("아두이노로부터 받은 데이터: " + data);
-  }
-}
-=========================================================
