@@ -65,12 +65,28 @@ void loop() {
 }
 
 4번
-void setup(){
+프로세싱 코드
+import processing.serial.*;
+Serial p;
+void setup() {
+  p = new Serial(this,"COM5",9600);
+}
+void draw() {
+}
+void keyPressed(){
+  background(0);
+  textSize(64);
+  text(key,64,64);
+  p.write(key);
+}
+아두이너 코드
+void setup() {
   Serial.begin(9600);
 }
-void loop(){
+void loop() {
   if(Serial.available()>0){
     String a = Serial.readString();
-    if(a.indexOf('5')==0) tone(4,523, 500);//도
-  }
+    if(a.indexOf('5')==0) tone(4,523,500); 
+    delay(500);
+  } 
 }
